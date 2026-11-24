@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My To-Do List</title>
+  <style>
+    :root {
+      --background: #eef2f7;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --danger: #dc2626;
+      --danger-hover: #b91c1c;
+      --success: #16a34a;
+      --success-soft: #f0fdf4;
+      --success-border: #86efac;
+      --border: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px 16px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      background: var(--background);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    .app-card {
+      width: 100%;
+      max-width: 500px;
+      padding: 28px;
+      background: var(--card);
+      border-radius: 18px;
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.75rem;
+      text-align: center;
+    }
+
+    .subtitle {
+      margin: 6px 0 22px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.95rem;
+    }
+
+    .task-form {
+      display: flex;
+      gap: 10px;
+    }
+
+    .task-form input {
+      flex: 1;
+      min-width: 0;
+      padding: 11px 13px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font: inherit;
+      color: var(--text);
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 11px 15px;
+      font: inherit;
+      font-weight: 600;
+      color: #ffffff;
+      cursor: pointer;
+      transition: background-color 0.15s ease, transform 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .add-button {
+      background: var(--primary);
+    }
+
+    .add-button:hover {
+      background: var(--primary-hover);
+    }
+
+    .delete-button {
+      flex: 0 0 auto;
+      padding: 8px 12px;
+      background: var(--danger);
+    }
+
+    .delete-button:hover {
+      background: var(--danger-hover);
+    }
+
+    input:focus-visible,
+    button:focus-visible {
+      outline: 3px solid rgba(37, 99, 235, 0.4);
+      outline-offset: 2px;
+    }
+
+    .summary {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 22px 0 16px;
+      padding: 13px 15px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 0.95rem;
+    }
+
+    .summary p {
+      margin: 0;
+    }
+
+    .summary strong {
+      font-size: 1.05rem;
+    }
+
+    .task-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #ffffff;
+    }
+
+    .task-item.completed {
+      border-color: var(--success-border);
+      background: var(--success-soft);
+    }
+
+    .toggle-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      flex: 0 0 auto;
+      font-size: 0.85rem;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .task-checkbox {
+      width: 17px;
+      height: 17px;
+      margin: 0;
+      accent-color: var(--success);
+      cursor: pointer;
+    }
+
+    .task-text {
+      flex: 1;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .task-item.completed .task-text {
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+
+    .empty-state {
+      margin: 0;
+      padding: 26px 12px;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 12px;
+      }
+
+      .app-card {
+        padding: 20px;
+      }
+
+      .task-form {
+        flex-direction: column;
+      }
+
+      .summary {
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .task-item {
+        flex-wrap: wrap;
+      }
+
+      .toggle-label {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-card">
+    <header>
+      <h1>My To-Do List</h1>
+      <p class="subtitle">Add a task, finish it, and feel good about it.</p>
+    </header>
+
+    <form id="task-form" class="task-form">
+      <label class="sr-only" for="task-input">New task</label>
+      <input
+        id="task-input"
+        type="text"
+        placeholder="What needs to be done?"
+        autocomplete="off"
+        aria-describedby="input-hint"
+      >
+      <button class="add-button" type="submit">Add Task</button>
+    </form>
+    <p id="input-hint" class="sr-only">Press Enter or click Add Task to add the task.</p>
+
+    <section class="summary" aria-label="Task summary">
+      <p>Total tasks: <strong id="total-count">0</strong></p>
+      <p>Completed tasks: <strong id="completed-count">0</strong></p>
+    </section>
+
+    <ul id="task-list" class="task-list" aria-label="Tasks"></ul>
+    <p id="empty-state" class="empty-state">No tasks yet. Add one above!</p>
+  </main>
+
+  <script>
+    const form = document.getElementById('task-form');
+    const input = document.getElementById('task-input');
+    const list = document.getElementById('task-list');
+    const totalCount = document.getElementById('total-count');
+    const completedCount = document.getElementById('completed-count');
+    const emptyState = document.getElementById('empty-state');
+
+    let tasks = [];
+
+    function createId() {
+      if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+        return crypto.randomUUID();
+      }
+      return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
+    // Adding: trim the input, ignore empty values, and append with an immutable spread.
+    function addTask(value) {
+      const text = value.trim();
+      if (!text) return;
+
+      const task = { id: createId(), text, completed: false };
+      tasks = [...tasks, task];
+    }
+
+    // Toggling: map to a new array and replace only the matching task with a copy.
+    function toggleTask(id) {
+      tasks = tasks.map((task) =>
+        task.id === id ? { ...task, completed: !task.completed } : task
+      );
+    }
+
+    // Deleting: filter to a new array that excludes only the selected task.
+    function deleteTask(id) {
+      tasks = tasks.filter((task) => task.id !== id);
+    }
+
+    function render() {
+      // Counts are derived from tasks, so they can never drift out of sync.
+      totalCount.textContent = tasks.length;
+      completedCount.textContent = tasks.filter((task) => task.completed).length;
+      emptyState.hidden = tasks.length > 0;
+
+      list.replaceChildren();
+
+      tasks.forEach((task) => {
+        const item = document.createElement('li');
+        item.className = `task-item${task.completed ? ' completed' : ''}`;
+
+        const label = document.createElement('label');
+        label.className = 'toggle-label';
+        label.htmlFor = `task-${task.id}`;
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = `task-${task.id}`;
+        checkbox.className = 'task-checkbox';
+        checkbox.checked = task.completed;
+        checkbox.addEventListener('change', () => {
+          toggleTask(task.id);
+          render();
+        });
+
+        const labelText = document.createElement('span');
+        labelText.textContent = 'Mark as Done';
+
+        const text = document.createElement('span');
+        text.className = 'task-text';
+        text.textContent = task.text;
+
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'delete-button';
+        deleteButton.textContent = 'Delete';
+        deleteButton.addEventListener('click', () => {
+          deleteTask(task.id);
+          render();
+        });
+
+        label.append(checkbox, labelText);
+        item.append(label, text, deleteButton);
+        list.append(item);
+      });
+    }
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      addTask(input.value);
+      input.value = '';
+      input.focus();
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
